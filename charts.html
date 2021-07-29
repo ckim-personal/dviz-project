@@ -86,7 +86,7 @@
             d3.selectAll("svg > *").remove();
             let area = this.value;
             document.getElementById("scene_next_intro").innerHTML = `Current Area: <b>${area}</b>`;
-            renderBarChart('http://https://ckim-personal.github.io/dviz-project/data/fixedzips.csv', xlabel = 'day', ylabel = 'count', denom = 1, highlight = new Set([]), barSize = 15, areaSelected = area);
+            renderBarChart('https://ckim-personal.github.io/dviz-project/data/fixedzips.csv', xlabel = 'day', ylabel = 'count', denom = 1, highlight = new Set([]), barSize = 15, areaSelected = area);
         });
 
         $("div#area-select-div").hide();
@@ -105,7 +105,7 @@
                 "Although there is an overall downward trend, we see a slight uptick in the year 2019. " +
                 "Though the cause of this cannot be determined from the data we can explore what kind of events occured in 2019 that might've led to this uptick. "
                 document.getElementById("scene_next_intro").innerHTML = "Click on next slide for the <b>Crimes over months</b>."
-                renderBarChart('http://https://ckim-personal.github.io/dviz-project/data/crimes_by_year.csv', 'year', 'count');
+                renderBarChart('https://ckim-personal.github.io/dviz-project/data/crimes_by_year.csv', 'year', 'count');
 
                 let option = [{
                     note: {
@@ -133,7 +133,7 @@
                 "The only trend visible is that number of crimes here is related to the number of days in the month, " + 
                 "with longer months having more crime and shorter months having less crime. "
                 document.getElementById("scene_next_intro").innerHTML = "Click on next slide for the <b>numbers of crime incidents over days</b> (in a week)."
-                renderBarChart('http://https://ckim-personal.github.io/dviz-project/data/crimes_by_month.csv', 'month', 'count');
+                renderBarChart('https://ckim-personal.github.io/dviz-project/data/crimes_by_month.csv', 'month', 'count');
 
                 let option = [{
                     note: {
@@ -162,7 +162,7 @@
                 "It does make sense because usually most of people stay at home or have no outings very often on Sunday so that traffic is better; " +
                 "usually people have more activities on Saturday such as night party and social dinner with alcohol drinks, so Saturday is stressful comparing to the other days."
                 document.getElementById("scene_next_intro").innerHTML = "Click on next slide for the <b>numbers of traffic accidents in certain areas</b>."
-                renderBarChart('http://https://ckim-personal.github.io/dviz-project/data/crime_by_day.csv', 'day', 'count');
+                renderBarChart('https://ckim-personal.github.io/dviz-project/data/crime_by_day.csv', 'day', 'count');
 
                 let option = [{
                     note: {
@@ -190,7 +190,7 @@
                 "<br>" +
                 "The <b>highlighted bar</b> means, most crime occured on the marked day. "
                 document.getElementById("scene_next_intro").innerHTML = "Current Area: <b>78751</b>"
-                renderBarChart('http://https://ckim-personal.github.io/dviz-project/data/fixedzips.csv', xlabel = 'day', ylabel = 'count', denom = 1, highlight = new Set([]), barSize = 15, areaSelected = '78751');
+                renderBarChart('https://ckim-personal.github.io/dviz-project/data/fixedzips.csv', xlabel = 'day', ylabel = 'count', denom = 1, highlight = new Set([]), barSize = 15, areaSelected = '78751');
             }
         }
 
