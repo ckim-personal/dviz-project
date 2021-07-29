@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>calvink3: Narrative Visualization</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src='https://d3js.org/d3.v5.min.js'></script>
+    <script src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
+
+    <style>
+        .annotation-note-label {
+            font-size: 13px;
+            font-family: Georgia, "Times New Roman", Times, serif;;
+        }
+    </style>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light static-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                CS416 Data Visualization: Narrative Visualization
+            </a>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                    <a class="nav-link" href="index.html">Introduction</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="padding-top: 3px;">
+        <div style="padding: 20px 0px;">
+            <div class=".text-center">
+                <button type="button" class="btn btn-warning btn-sm scene-btn" data-scene-num="1">(1) Crimes over Years</button>
+                <button type="button" class="btn btn-warning btn-sm scene-btn" data-scene-num="2">(2) Crimes over Months</button>
+                <button type="button" class="btn btn-warning btn-sm scene-btn" data-scene-num="3">(3) Crimes over Days</button>
+                <button type="button" class="btn btn-warning btn-sm scene-btn" data-scene-num="4">(4) Explore Crime Data</button>
+            </div>
+        </div>
+        <div class="card">
+            <div id="scene_title" class="card-header"></div>
+            <div class="card-body">
+                <div style="padding-top: 0px;">
+                    <small id="scene_intro"></small>
+                </div>
+                
+                <div>
+                    <svg height="520" width="100%" id="graph">
+                    </svg>
+                </div>
+
+                <div style="padding-top: 20px;">
+                    <small id="scene_next_intro"></small>
+                </div>
+
+                <div id="area-select-div" class="form-group" style="width: 188px">
+                    <label for="area-select">* Select ZipCode:</label>
+                    <select class="form-control" id="area-select">
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let zipList = ['78753', '78669', '78617', '78703', '78717', '78748', '78732', '78745', '78619', '78749', '78751', '78645', '78653', '78705', '78721', '78757', '78652', '78728', '78702', '78737', '78741', '78610', '78626', '78733', '78704', '78730', '78738', '78747', '78726', '78750', '78724', '78612', '78613', '78722', '78744', '78660', '78719', '78729', '78641', '78752', '78754', '78758', '78681', '78734', '78736', '78739', '78712', '78664', '78725', '78727', '78731', '78746', '78742', '78759', '78701', '76574', '78640', '78756', '78735', '78723']
+    
+        $('body').on('click', '.scene-btn', function(){
+            let sceneTitle =  $(this).text(), sceneId = $(this).data('scene-num');
+            renderScene(sceneId);
+        });
+
+        for (let item of zipList) {
+            $("select#area-select").append(`<option value="${item}">${item}</option>`)
+        }
+
+        $("select#area-select").change(function() {
+            // console.log(this.value);
+            d3.selectAll("svg > *").remove();
+            let area = this.value;
+            document.getElementById("scene_next_intro").innerHTML = `Current Area: <b>${area}</b>`;
+            renderBarChart('http://localhost:8000/data/fixedzips.csv', xlabel = 'day', ylabel = 'count', denom = 1, highlight = new Set([]), barSize = 15, areaSelected = area);
+        });
+
+        $("div#area-select-div").hide();
+
+
+        function renderScene(sceneId) {
+            d3.select("svg").html('');
+
+            if (sceneId === 1) {
+                $("div#area-select-div").hide();
+                $('.card-header').text("Scene 1: Crimes in Austin, TX over Years (2010 ~ Present)");
+                document.getElementById("scene_intro").innerHTML = 
+                "This chart shows the number of crimes in Austin, TX per year through the years 2010 to Present " + 
+                "We can observe that crime has been on a downward trend for the past decade. " + 
+                "Note that the number for 2021 is lower because the year is not finished." + 
+                "Although there is an overall downward trend, we see a slight uptick in the year 2019. " +
+                "Though the cause of this cannot be determined from the data we can explore what kind of events occured in 2019 that might've led to this uptick. "
+                document.getElementById("scene_next_intro").innerHTML = "Click on next slide for the <b>Crimes over months</b>."
+                renderBarChart('http://localhost:8000/data/crimes_by_year.csv', 'year', 'count');
+
+                let option = [{
+                    note: {
+                        label: "Trend is decreasing in 2010~2021",
+                        align: "right",
+                    },
+                    connector: {
+                        end: "arrow",
+                        type: "line",
+                    },
+                    color: ["black"],
+                    x:620,
+                    y: 74,
+                    dx: -50,
+                    dy: 0,
+                }];
+                d3.select("svg").append("g").call(d3.annotation().annotations(option));
+            }
+
+            if (sceneId === 2) {
+                $("div#area-select-div").hide();
+                $('.card-header').text("Scene 2: Crimes over Months");
+                document.getElementById("scene_intro").innerHTML = "This chart shows the <b>average numbers</b> of crime incidents per month. " +
+                "Unfortunately, the data doesn't seem to show any trends in crime over months. " +
+                "The only trend visible is that number of crimes here is related to the number of days in the month, " + 
+                "with longer months having more crime and shorter months having less crime. "
+                document.getElementById("scene_next_intro").innerHTML = "Click on next slide for the <b>numbers of crime incidents over days</b> (in a week)."
+                renderBarChart('http://localhost:8000/data/crimes_by_month.csv', 'month', 'count');
+
+                let option = [{
+                    note: {
+                        label: "Criminal Activity seems to be consistent with number of days in month)",
+                        align: "center",
+                    },
+                    connector: {
+                        end: "arrow",
+                        type: "line",
+                    },
+                    color: ["black"],
+                    x:290,
+                    y: 0,
+                    dx:450,
+                    dy: 0,
+                }];
+                d3.select("svg").append("g").call(d3.annotation().annotations(option));
+            }
+
+            if (sceneId === 3) {
+                $("div#area-select-div").hide();
+                $('.card-header').text("Scene 3: Crimes over Days");
+                document.getElementById("scene_intro").innerHTML = "This chart shows the <b>average numbers</b> of traffic accidents per day (in a week). " +
+                "<b>Saturday is the highest</b>, about 10% higher than the other days. " +
+                "<b>Sunday is the lowest</b>, about 5% lower than the other days. " +
+                "It does make sense because usually most of people stay at home or have no outings very often on Sunday so that traffic is better; " +
+                "usually people have more activities on Saturday such as night party and social dinner with alcohol drinks, so Saturday is stressful comparing to the other days."
+                document.getElementById("scene_next_intro").innerHTML = "Click on next slide for the <b>numbers of traffic accidents in certain areas</b>."
+                renderBarChart('http://localhost:8000/data/crime_by_day.csv', 'day', 'count');
+
+                let option = [{
+                    note: {
+                        label: "Crime seems to increase over the weekend (Friday, Saturday)",
+                        align: "left",
+                    },
+                    connector: {
+                        end: "arrow",
+                        type: "line",
+                    },
+                    color: ["black"],
+                    x:760,
+                    y: 20,
+                    dx:-340,
+                    dy: 0,
+                }];
+                d3.select("svg").append("g").call(d3.annotation().annotations(option));
+            }
+
+            if (sceneId ===4) {
+                $("div#area-select-div").show();
+                $('.card-header').text("Scene 4: Crime in Areas");
+                document.getElementById("scene_intro").innerHTML = "This chart shows the <b>average numbers</b> of criminal incidents per day for the selected area. " +
+                "This is for the reader to <b>select an area</b> and explore the data by selecting area name. " +
+                "<br>" +
+                "The <b>highlighted bar</b> means, most crime occured on the marked day. "
+                document.getElementById("scene_next_intro").innerHTML = "Current Area: <b>78751</b>"
+                renderBarChart('http://localhost:8000/data/fixedzips.csv', xlabel = 'day', ylabel = 'count', denom = 1, highlight = new Set([]), barSize = 15, areaSelected = '78751');
+            }
+        }
+
+        function renderBarChart(url, xlabel, ylabel, denom = 1, highlight = new Set([]), barSize = 15, areaSelected = null) {
+            let margin = 50;
+            let _width = parseInt(d3.select("svg").style("width").replace("px", "")) - margin * 2;
+            let _height = parseInt(d3.select("svg").style("height").replace("px", "")) - margin * 2;
+            let barWidth = _width / barSize;
+            let days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+            console.log(areaSelected);
+            d3.csv(url).then(function(d) {
+                let values = [];
+                let times = [];
+                let maxValue = -1;
+                let maxLabel = null;
+                for (let i = 0; i < d.length; i++) {
+                    if (areaSelected) {
+                        console.log('here');
+                        if (areaSelected == d[i].ZipCode) {
+                            let value = parseInt(d[i][ylabel]);
+                            let time = d[i][xlabel];
+                            values.push(value);
+                            times.push(time);
+
+                            if (value > maxValue) {
+                                maxValue = value;
+                                maxLabel = time;
+                            }
+                        }
+                    } else {
+                        values.push(parseInt(d[i][ylabel]));
+                        times.push(d[i][xlabel]);
+                        
+                        if (parseInt(d[i][ylabel]) > maxValue) {
+                                maxValue = parseInt(d[i][ylabel]);
+                                maxLabel = d[i][xlabel];
+                            }
+                    }
+                }
+
+                if (areaSelected) {
+                    for (let i = 0; i < days.length; i++) {
+                        if (!times.includes(days[i]) ) {
+                            times.push(days[i]);
+                            values.push(0);
+                        }
+                    }
+                }
+                
+
+                if (maxLabel) {
+                    highlight.add(maxLabel);
+                }
+
+                let value_max = Math.max.apply(null, values);
+                let data_max = values.map((value, index) => ({x: times[index], y: value}));
+
+                let x = d3.scaleBand().domain(data_max.map(p => p.x)).range([0, _width]);
+                let y = d3.scaleLinear().domain([0, value_max]).range([_height, 0]);
+                let h = d3.scaleLinear().domain([0, value_max]).range([0, _height]);
+                
+                d3.select('svg')
+                    .attr("width", _width+margin*2)
+                    .attr("height",_height+margin*2)
+                    .append("g")
+                    .attr("transform","translate("+margin+","+margin+")")
+
+                    .selectAll()
+                    .data(data_max)
+                    .enter().append("rect")
+                    .attr("x", d => x(d.x) + x.bandwidth() / 2 - barWidth / 2)
+                    .attr("y", d => _height - h(d.y))
+                    .attr('fill', d => {
+                        if (highlight.has(d.x)) return "CornflowerBlue";
+                        else return "skyblue";
+                    })
+                    .attr("width", barWidth)
+                    .attr("height", d => h(d.y));
+
+                d3.select('svg').append('g')
+                    .attr('transform', "translate("+margin+","+margin+")")
+                    .call(d3.axisLeft(y));
+
+                d3.select('svg').append('g')
+                    .attr('transform', "translate("+margin+","+(_height+margin)+")")
+                    .call(d3.axisBottom(x));
+            });
+        }
+
+        renderScene(1);
+    </script>
+  </body>
+</html>
